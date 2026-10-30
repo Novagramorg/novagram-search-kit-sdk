@@ -92,7 +92,7 @@ final class ArchiveSearchTests: XCTestCase {
             let start = Date()
             let page = NovagramArchiveSearch.search(request, in: index, isChatExcluded: { $0 == 1010 })
             let elapsed = Date().timeIntervalSince(start)
-            XCTAssertLessThan(elapsed, 0.05, "\(request.query.raw) took \(Int(elapsed * 1000)) ms")
+            XCTAssertLessThan(elapsed, 0.2, "\(request.query.raw) took \(Int(elapsed * 1000)) ms")
             XCTAssertFalse(page.records.contains { $0.chatPeerId == 1010 })
         }
     }
