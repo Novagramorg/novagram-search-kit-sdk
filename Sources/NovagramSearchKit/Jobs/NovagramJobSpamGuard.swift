@@ -6,7 +6,7 @@ public enum NovagramJobSpamGuard {
     static let sourceWords = ["nft", "btc", "eth", "trx", "markets"]
     static let weakSourceWords = ["coin", "coins", "token", "tokens", "pump", "trading"]
     private static let weakWordThreshold = 2
-    static let textMarkers = ["altcoin", "bitcoin", "ethereum", "usdt", "cryptocurrenc", "market data"]
+    static let textMarkers = ["altcoin", "bitcoin", "ethereum", "usdt", "cryptocurrenc", "market data", "фриланс-бот", "фриланс бот", "freelance bot", "ежедневными заказами", "поиске заказов", "поиске клиентов"]
     static let textWords = ["btc", "eth", "markets"]
     private static let promoWords = ["picks", "guide"]
     private static let promoDomain = try? NSRegularExpression(pattern: "[a-z0-9-]+\\.(com|net|io|xyz|top|org|pro|club|app)\\b", options: [.caseInsensitive])

@@ -13,6 +13,12 @@ final class JobsSpamTests: XCTestCase {
         XCTAssertEqual(NovagramJobPostParser.parse(bettingSpam).kind, .unknown, "betting spam is not a job post")
     }
 
+    func testFreelanceBotAdsAreSpam() {
+        XCTAssertTrue(NovagramJobSpamGuard.isSpamText("Сервис, который поможет вам в поиске заказов\nЛовите ссылку\nФриланс-бот с ежедневными заказами"))
+        XCTAssertTrue(NovagramJobSpamGuard.isSpamText("Вы работаете на фрилансе и сейчас в поиске клиентов? Тогда стоит обратить внимание на этого бота"))
+        XCTAssertFalse(NovagramJobSpamGuard.isSpamText("Ищем фриланс-дизайнера для проекта, оплата 500$, пишите @example_hr_team"))
+    }
+
     func testSpamGuardUsesWholeWords() throws {
         XCTAssertFalse(NovagramJobSpamGuard.isSpamText("Read our guidelines at company.com and send your CV"), "guidelines with a domain is not promo spam")
         XCTAssertTrue(NovagramJobSpamGuard.isSpamText("Top altcoin picks today at rwcnc.com"), "picks with a domain is promo spam")
