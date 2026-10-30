@@ -14,6 +14,7 @@ Foundation only: Postbox, TelegramCore, SwiftSignalKit and UI stay in the apps a
 | `Translation/`   | Translated-query rules (3+ characters, no `#`/`$`, no section when equal to the query) and the 200-entry cache. |
 | `Settings/`      | `novagram_search_features` (default on), `novagram_search_translate` (default off), `novagram_search_translate_langs` (translated-section languages, legacy fallback to `auto_translate_lang`, at most 3 server translations), key and deep-link slug constants. |
 | `Jobs/`          | Job search: post parser, salary and contact parsers, presets, filter model, per-account store, channel relevance and spam guard. |
+| `Archive/`       | Search in edit history and deleted messages: the archived record, a search index over any records, paged search with privacy exclusion, an optional file store per account and the macOS legacy edit-history import. |
 
 ## Query language
 
@@ -33,6 +34,30 @@ Terms match at a word start, in both Uzbek scripts. `parse(_:languages:translati
 | `NovagramJobPresets` | Hashtags and keywords per mode, 20 cities, channel discovery queries. |
 | `NovagramJobChannelRelevance` | Channel discovery queries and the job signal of a channel title or username. |
 | `NovagramJobSpamGuard` | Rejects crypto, betting and promo sources and posts. |
+
+## Archive
+
+Search in previous versions of edited messages and in deleted messages. The search works on plain records, so each app
+can keep the data where it already is.
+
+| Type | Purpose |
+| ---- | ------- |
+| `NovagramArchivedMessage` | One record: account peer and record id, chat peer id, message id, thread id, author, send date, text and kind `.edited(editDate:)` (one record per previous version, `editDate` = when it was replaced) or `.deleted(deletedAt:)`. `editedVersions(...)` turns a message's previous texts with their dates into edited records. |
+| `NovagramArchiveIndex` | An immutable, deduplicated, normalized snapshot sorted by edit or deletion time, newest first. Build it from any records. |
+| `NovagramArchiveSearch` | `search(_:in:isChatExcluded:)` over an index or a record array. Filters: kinds (`.edited`, `.deleted`, `.all`), account, chat. Matching uses `NovagramSearchQuery` (OR/NOT/phrases, Uzbek Latin and Cyrillic). An empty query lists every record. Paging by `NovagramArchiveSearchCursor`, stable when newer records arrive. |
+| `NovagramArchiveSearchRequest`, `NovagramArchiveSearchPage`, `NovagramArchiveKinds` | The request (default 50 results, at most 200) and one page of results. |
+| `NovagramMessageArchiveStore` | Optional persistence for an app that has no database copy: one JSON-lines file per account in a directory the app gives, a versioned header, append plus atomic compaction, a torn last line skipped on load. Deleted records are upserted (the earliest deletion time is kept), edited versions are deduplicated by text. Limits: 20,000 records and 90 days per account (`NovagramArchiveLimits`). `remove(chatPeerId:accountRecordId:)`, `clear(accountRecordId:)` at logout, `index(accountRecordId:)` for search. |
+| `NovagramArchiveMacLegacyImport` | Reads the old macOS edit history (`uz.fenixuz.app.editedHistory` suite, `msg_<chat>_<message>` keys). |
+
+Privacy: `isChatExcluded` is required and must return true for hidden and locked chats; their records never appear,
+even in an in-chat search. Load the store and build an index off the main thread: about 300 ms for 20,000 records on a
+debug build, then a search takes under 50 ms.
+
+```swift
+let index = store.index(accountRecordId: accountRecordId)
+let request = NovagramArchiveSearchRequest(rawQuery: "uchrashuv", kinds: .deleted)
+let page = NovagramArchiveSearch.search(request, in: index, isChatExcluded: { hiddenChats.contains($0) })
+```
 
 ## macOS integration
 

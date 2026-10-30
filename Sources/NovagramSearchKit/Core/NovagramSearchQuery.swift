@@ -60,6 +60,14 @@ public struct NovagramSearchQuery: Equatable {
         return matcher.matches(text)
     }
 
+    var matchesEverything: Bool {
+        return matcher.matchesEverything
+    }
+
+    func matches(normalized text: String) -> Bool {
+        return matcher.matches(normalized: text)
+    }
+
     private static func translatedText(for language: NovagramSearchLanguage, translations: [NovagramSearchLanguage: String]) -> String? {
         switch language {
         case .uzLatin, .uzCyrillic:
@@ -289,11 +297,18 @@ struct NovagramSearchQueryMatcher: Equatable {
         excludedPhrases = syntax.excludedPhrases.map(Term.init)
     }
 
+    var matchesEverything: Bool {
+        return branches.isEmpty && excludedTerms.isEmpty && excludedPhrases.isEmpty
+    }
+
     func matches(_ text: String) -> Bool {
-        if branches.isEmpty && excludedTerms.isEmpty && excludedPhrases.isEmpty {
+        if matchesEverything {
             return true
         }
-        let normalized = NovagramSearchText.normalized(text)
+        return matches(normalized: NovagramSearchText.normalized(text))
+    }
+
+    func matches(normalized: String) -> Bool {
         if excludedTerms.contains(where: { $0.matchesWordStart(in: normalized) }) {
             return false
         }
