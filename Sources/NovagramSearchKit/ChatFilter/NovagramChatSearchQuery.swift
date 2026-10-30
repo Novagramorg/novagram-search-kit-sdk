@@ -10,7 +10,7 @@ public enum NovagramChatSearchMode: Equatable {
 
 /// A parsed chat search query.
 public struct NovagramChatSearchQuery: Equatable {
-    /// The lowercase prefix of a regular expression query.
+    /// The prefix of a regular expression query, matched in any letter case and followed by a non-whitespace character.
     public static let regexPrefix = "re:"
     /// Characters that may open a quoted phrase.
     public static let openingQuotes: Set<Character> = ["\"", "\u{201C}", "\u{201D}", "\u{201E}"]
@@ -74,11 +74,7 @@ public struct NovagramChatSearchQuery: Equatable {
 
     private static func parse(_ query: String) -> NovagramChatSearchMode {
         let trimmed = query.trimmingCharacters(in: .whitespacesAndNewlines)
-        if trimmed.hasPrefix(regexPrefix) {
-            let pattern = String(trimmed.dropFirst(regexPrefix.count)).trimmingCharacters(in: .whitespaces)
-            guard !pattern.isEmpty else {
-                return .normal
-            }
+        if let pattern = regexPattern(trimmed) {
             guard (try? NSRegularExpression(pattern: pattern, options: regexOptions)) != nil else {
                 return .plain(pattern)
             }
@@ -89,5 +85,16 @@ public struct NovagramChatSearchQuery: Equatable {
         }
         let phrase = String(trimmed.dropFirst().dropLast()).trimmingCharacters(in: .whitespacesAndNewlines)
         return phrase.isEmpty ? .normal : .phrase(phrase)
+    }
+
+    private static func regexPattern(_ trimmed: String) -> String? {
+        guard trimmed.prefix(regexPrefix.count).lowercased() == regexPrefix else {
+            return nil
+        }
+        let pattern = trimmed.dropFirst(regexPrefix.count)
+        guard let first = pattern.first, !first.isWhitespace else {
+            return nil
+        }
+        return String(pattern)
     }
 }

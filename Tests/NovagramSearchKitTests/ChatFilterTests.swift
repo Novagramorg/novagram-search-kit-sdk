@@ -22,24 +22,37 @@ final class ChatFilterTests: XCTestCase {
         XCTAssertEqual(NovagramChatSearchQuery("\"open only").mode, .normal)
     }
 
-    func testLowercaseRegexPrefixScansHistory() {
-        let query = NovagramChatSearchQuery("re: inv(oice)?\\s+\\d+")
+    func testRegexPrefixScansHistory() {
+        let query = NovagramChatSearchQuery("re:inv(oice)?\\s+\\d+")
         XCTAssertEqual(query.mode, .regex("inv(oice)?\\s+\\d+"))
         XCTAssertEqual(query.serverQuery, "")
         XCTAssertEqual(query.pageSize(requested: 50), 100)
         XCTAssertEqual(query.scanLimit(), 2000)
     }
 
-    func testCapitalizedRePrefixStaysPlainSearch() {
-        let query = NovagramChatSearchQuery("Re: invoice")
-        XCTAssertEqual(query.mode, .normal)
-        XCTAssertEqual(query.serverQuery, "Re: invoice")
-        XCTAssertNil(NovagramChatSearchMatcher(query))
+    func testRegexPrefixIgnoresLetterCase() {
+        XCTAssertEqual(NovagramChatSearchQuery("Re:\\d+").mode, .regex("\\d+"))
+        XCTAssertEqual(NovagramChatSearchQuery("RE:inv").mode, .regex("inv"))
+        XCTAssertEqual(NovagramChatSearchQuery("rE:inv").mode, .regex("inv"))
+        XCTAssertEqual(NovagramChatSearchQuery("  Re:\\d+  ").mode, .regex("\\d+"))
+    }
+
+    func testWhitespaceAfterColonStaysPlainSearch() {
+        let capitalized = NovagramChatSearchQuery("Re: invoice")
+        XCTAssertEqual(capitalized.mode, .normal)
+        XCTAssertEqual(capitalized.serverQuery, "Re: invoice")
+        XCTAssertNil(NovagramChatSearchMatcher(capitalized))
+        let lowercase = NovagramChatSearchQuery("re: invoice")
+        XCTAssertEqual(lowercase.mode, .normal)
+        XCTAssertEqual(lowercase.serverQuery, "re: invoice")
+        XCTAssertNil(NovagramChatSearchMatcher(lowercase))
+        XCTAssertEqual(NovagramChatSearchQuery("re:\tinvoice").mode, .normal)
     }
 
     func testEmptyRegexPatternIsNormal() {
         XCTAssertEqual(NovagramChatSearchQuery("re:").mode, .normal)
         XCTAssertEqual(NovagramChatSearchQuery("re:   ").mode, .normal)
+        XCTAssertEqual(NovagramChatSearchQuery("Re:").mode, .normal)
     }
 
     func testInvalidRegexFallsBackToPlainText() {
@@ -48,6 +61,7 @@ final class ChatFilterTests: XCTestCase {
         XCTAssertEqual(query.serverQuery, "[a-")
         XCTAssertFalse(query.filtersMessages)
         XCTAssertNil(NovagramChatSearchMatcher(query))
+        XCTAssertEqual(NovagramChatSearchQuery("Re:[a-").mode, .plain("[a-"))
     }
 
     func testFeaturesOffMakesEveryQueryNormal() {
