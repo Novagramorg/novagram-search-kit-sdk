@@ -14,7 +14,7 @@ final class JobsPostParserTests: XCTestCase {
         XCTAssertEqual(info1.formats, [.office], "uz latin office format")
         XCTAssertEqual(info1.employment, [.fullTime], "uz latin full time")
         XCTAssertEqual(info1.experienceYears, 2, "uz latin experience")
-        XCTAssertEqual(info1.contacts, [.phone("+998901234567"), .username("hr_uzum")], "uz latin contacts")
+        XCTAssertEqual(info1.contacts, [.phone("+998901234567"), .username("hr_example_uz")], "uz latin contacts")
     }
 
     func testRussianVacancy() throws {
@@ -24,7 +24,7 @@ final class JobsPostParserTests: XCTestCase {
         XCTAssertEqual(info2.salary, NovagramJobSalary(text: "от 5 000 000 до 8 000 000 сум", min: 5_000_000, max: 8_000_000, currency: .uzs), "ru salary range with от/до")
         XCTAssertEqual(info2.cityIds, ["tashkent"], "ru city with г.")
         XCTAssertEqual(info2.experienceYears, 1, "ru experience")
-        XCTAssertEqual(info2.contacts, [.phone("+998935554433"), .email("hr@company.uz")], "ru contacts")
+        XCTAssertEqual(info2.contacts, [.phone("+998935554433"), .email("hr@example.uz")], "ru contacts")
     }
 
     func testUzbekCyrillicVacancy() throws {
@@ -47,7 +47,7 @@ final class JobsPostParserTests: XCTestCase {
         XCTAssertEqual(info4.formats, [.remote, .hybrid], "en formats")
         XCTAssertEqual(info4.salary?.min, 1500, "$1500+ min")
         XCTAssertEqual(info4.salary?.max, nil, "$1500+ has no max")
-        XCTAssertEqual(info4.contacts, [.username("ali_dev"), .link("https://github.com/alidev")], "en contacts trim punctuation")
+        XCTAssertEqual(info4.contacts, [.username("dev_example"), .link("https://github.com/alidev")], "en contacts trim punctuation")
     }
 
     func testUzbekResume() throws {
@@ -73,7 +73,7 @@ final class JobsPostParserTests: XCTestCase {
     }
 
     func testKindAndFalseSalaries() throws {
-        XCTAssertEqual(NovagramJobPostParser.parse("Sotuv menejeri kerak. Rezyumeni @hr_team ga yuboring").kind, .vacancy, "send-resume request counts as vacancy")
+        XCTAssertEqual(NovagramJobPostParser.parse("Sotuv menejeri kerak. Rezyumeni @example_hr_team ga yuboring").kind, .vacancy, "send-resume request counts as vacancy")
         XCTAssertEqual(NovagramJobPostParser.parse("Salom hammaga, yaxshi kun").kind, .unknown, "no markers is unknown")
         XCTAssertEqual(NovagramJobPostParser.parse("Maosh yaxshi.\nTel: +998 90 123 45 67").salary, nil, "phone is not a salary")
         XCTAssertEqual(NovagramJobPostParser.parse("Ish haqi 2026-yil 1-yanvardan oshadi").salary, nil, "year and date are not a salary")
@@ -95,7 +95,7 @@ final class JobsPostParserTests: XCTestCase {
     func testCitiesContactsExperienceAndTitle() throws {
         XCTAssertEqual(NovagramJobPostParser.parse("Офис в Ташкенте и Самарканде, в г. Фергане").cityIds, ["tashkent", "samarkand", "fergana"], "ru city declensions in order")
         XCTAssertEqual(NovagramJobPostParser.parse("Qo‘qon va Farg'onada filiallar, Toshkentda ham").cityIds, ["kokand", "fergana", "tashkent"], "uz latin cities with apostrophes")
-        XCTAssertEqual(NovagramJobPostParser.parse("Email: info@novagram.uz, @username_ok, t.me/novagram_jobs").contacts, [.email("info@novagram.uz"), .username("username_ok"), .link("t.me/novagram_jobs")], "email, username, t.me link")
+        XCTAssertEqual(NovagramJobPostParser.parse("Email: info@example.com, @example_user_ok, t.me/novagram_jobs").contacts, [.email("info@example.com"), .username("example_user_ok"), .link("t.me/novagram_jobs")], "email, username, t.me link")
         XCTAssertEqual(NovagramJobPostParser.parse("2+ years iOS, 18 years old").experienceYears, 2, "2+ years")
         let longTitle = NovagramJobPostParser.parse("🔥🔥 " + String(repeating: "Juda uzun sarlavha ", count: 10)).title ?? ""
         XCTAssertTrue(longTitle.count <= NovagramJobPostParser.maxTitleLength && longTitle.hasPrefix("Juda"), "title stripped and clipped")

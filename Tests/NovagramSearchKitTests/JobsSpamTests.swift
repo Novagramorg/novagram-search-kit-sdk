@@ -26,16 +26,16 @@ final class JobsSpamTests: XCTestCase {
     func testVacancyMarkers() throws {
         XCTAssertEqual(NovagramJobPostParser.parse("Crypto birjaga backend dasturchi kerak, #vakansiya, oylik 2000$").kind, .vacancy, "crypto company vacancy survives the spam guard")
         XCTAssertEqual(NovagramJobPostParser.parse("Bizning do'konga sotuvchi kerak. Maosh 4 mln so'm, Chilonzor. Tel 90 123 45 67").kind, .vacancy, "uz latin role kerak")
-        XCTAssertTrue(acceptedForJob("iOS developer kerak, remote, tajriba 2 yil, @hr_company"), "uz latin iOS developer kerak accepted")
+        XCTAssertTrue(acceptedForJob("iOS developer kerak, remote, tajriba 2 yil, @example_hr_company"), "uz latin iOS developer kerak accepted")
         XCTAssertEqual(NovagramJobPostParser.parse("Ofisga kerak: 2 nafar, ish vaqti 9-18").kind, .vacancy, "bare kerak with job word and office")
         XCTAssertEqual(NovagramJobPostParser.parse("Bugun havo yaxshi, soyabon kerak").kind, .unknown, "bare kerak without job signal stays unknown")
         XCTAssertEqual(NovagramJobPostParser.parse("Дастурчи керак, ойлик 10 млн сўм").kind, .vacancy, "uz cyrillic role керак")
         XCTAssertEqual(NovagramJobPostParser.parse("Нужен водитель на доставку, оплата ежедневно, +998 93 555 44 33").kind, .vacancy, "ru нужен")
         XCTAssertEqual(NovagramJobPostParser.parse("Приглашаем Android-разработчика, удалённо").kind, .vacancy, "ru приглашаем")
         XCTAssertEqual(NovagramJobPostParser.parse("Мы в поиске SMM-специалиста на позицию в Ташкенте").kind, .vacancy, "ru в поиске and на позицию")
-        XCTAssertTrue(acceptedForJob("We’re looking for a Swift engineer to join our team. Apply via @talent_hr"), "en we're looking for accepted")
+        XCTAssertTrue(acceptedForJob("We’re looking for a Swift engineer to join our team. Apply via @example_talent_hr"), "en we're looking for accepted")
         XCTAssertEqual(NovagramJobPostParser.parse("Open role: Product designer (hybrid, Tashkent)").kind, .vacancy, "en open role")
-        XCTAssertEqual(NovagramJobPostParser.parse("Python backend\nOylik: 1500$\nRemote\n@hr_python").kind, .vacancy, "salary, contact and format make a weak vacancy")
+        XCTAssertEqual(NovagramJobPostParser.parse("Python backend\nOylik: 1500$\nRemote\n@example_hr_python").kind, .vacancy, "salary, contact and format make a weak vacancy")
     }
 
     func testResumeMarkers() throws {

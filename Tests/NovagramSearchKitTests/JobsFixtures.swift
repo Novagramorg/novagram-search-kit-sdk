@@ -9,7 +9,7 @@ let uzLatinVacancy = """
 🕘 Ish vaqti: 9:00-18:00, to'liq stavka, ofisda
 📌 Tajriba: kamida 2 yil
 📞 +998 90 123-45-67
-✉️ @hr_uzum
+✉️ @hr_example_uz
 """
 let ruVacancy = """
 #вакансия
@@ -18,7 +18,7 @@ let ruVacancy = """
 Зарплата: от 5 000 000 до 8 000 000 сум
 Опыт работы от 1 года
 Тел: +998 (93) 555 44 33
-hr@company.uz
+hr@example.uz
 """
 let uzCyrillicVacancy = """
 #вакансия
@@ -33,7 +33,7 @@ Looking for a job: iOS developer
 3 years of experience with Swift
 Remote or hybrid
 Expected salary: $1500+
-Contact: @ali_dev, https://github.com/alidev.
+Contact: @dev_example, https://github.com/alidev.
 """
 let uzResume = """
 #rezyume
@@ -61,9 +61,9 @@ We provide a 100% profitable trading strategy. Join now: t.me/megacoin_signals
 #ios #swift #iphone
 """
 let chineseSpam = "限时优惠！苹果 iOS 手机 低价出售，正品保证，联系微信 abc123 #ios #swift 全国包邮 欢迎咨询"
-let casinoSpam = "Казино онлайн! Ставки на спорт, бонус 100%. Нужен только телефон, вывод на карту от 500 000 сум. @lucky_casino_bot"
+let casinoSpam = "Казино онлайн! Ставки на спорт, бонус 100%. Нужен только телефон, вывод на карту от 500 000 сум. @example_casino_bot"
 let airdropSpam = "Free airdrop! Claim your token now, pump x100 guaranteed. Apply here: https://example.com/claim #swift"
-let bettingSpam = "Betting tips for iOS app users: earn $500 daily, write @tipster_pro"
+let bettingSpam = "Betting tips for iOS app users: earn $500 daily, write @example_tipster"
 let legacyFilterJSON = #"{"mode":"findCandidates","query":"swift","cityIds":["tashkent"],"formats":["remote"],"period":"month","onlyWithSalary":true}"#
 
 let jobFilter = NovagramJobFilter(mode: .findJob, query: "iOS | swift -junior", period: .month)
