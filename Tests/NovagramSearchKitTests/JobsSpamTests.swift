@@ -13,6 +13,13 @@ final class JobsSpamTests: XCTestCase {
         XCTAssertEqual(NovagramJobPostParser.parse(bettingSpam).kind, .unknown, "betting spam is not a job post")
     }
 
+    func testTokenPriceSpamFamily() {
+        XCTAssertTrue(NovagramJobSpamGuard.isSpamSource(title: "💵 latest | $500-$6676......", username: nil))
+        XCTAssertTrue(NovagramJobSpamGuard.isSpamText("SwagBucks BUCKS $0.006152\n$2,000 - $200,000"))
+        XCTAssertFalse(NovagramJobSpamGuard.isSpamSource(title: "IT Vakansiyalar | $500-$3000", username: nil))
+        XCTAssertFalse(NovagramJobSpamGuard.isSpamText("iOS developer kerak, maosh $1500-$2500, tel +998901234567"))
+    }
+
     func testHashtagStuffingIsSpam() {
         XCTAssertTrue(NovagramJobSpamGuard.isSpamText("#школьники #vacancy #предзаказ #канада"))
         XCTAssertFalse(NovagramJobSpamGuard.isSpamText("Sotuvchi kerak. Tel: +998901234567 #ish #vakansiya #toshkent #sotuvchi"))

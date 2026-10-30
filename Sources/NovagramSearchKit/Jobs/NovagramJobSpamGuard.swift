@@ -11,7 +11,18 @@ public enum NovagramJobSpamGuard {
     private static let promoWords = ["picks", "guide"]
     private static let promoDomain = try? NSRegularExpression(pattern: "[a-z0-9-]+\\.(com|net|io|xyz|top|org|pro|club|app)\\b", options: [.caseInsensitive])
 
+    private static let priceRangeTitle = try? NSRegularExpression(pattern: "\\$\\d[\\d,]*\\s*-\\s*\\$\\d[\\d,]*\\s*\\.{3,}")
+    private static let tokenPrice = try? NSRegularExpression(pattern: "\\b[A-Z]{2,10}\\s+\\$0\\.\\d{3,}")
+
+    static func matches(_ regex: NSRegularExpression?, _ text: String) -> Bool {
+        guard let regex else { return false }
+        return regex.firstMatch(in: text, range: NSRange(text.startIndex..., in: text)) != nil
+    }
+
     public static func isSpamSource(title: String, username: String?) -> Bool {
+        if matches(priceRangeTitle, title) {
+            return true
+        }
         let text = (title + " " + (username ?? "")).lowercased()
         let weakWords = weakSourceWords.filter(wordTokens(text).contains).count
         return contains(text, markers: sourceMarkers, words: sourceWords) || weakWords >= weakWordThreshold || hasPromoDomain(text)
@@ -19,7 +30,7 @@ public enum NovagramJobSpamGuard {
 
     public static func isSpamText(_ text: String) -> Bool {
         let lowered = text.lowercased()
-        return contains(lowered, markers: textMarkers, words: textWords) || hasPromoDomain(lowered) || isHashtagStuffing(text)
+        return contains(lowered, markers: textMarkers, words: textWords) || hasPromoDomain(lowered) || isHashtagStuffing(text) || matches(tokenPrice, text)
     }
 
     private static let stuffingMinHashtags = 4
