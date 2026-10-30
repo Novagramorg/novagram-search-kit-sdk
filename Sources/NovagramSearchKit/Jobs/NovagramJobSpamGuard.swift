@@ -33,7 +33,7 @@ public enum NovagramJobSpamGuard {
         return contains(lowered, markers: textMarkers, words: textWords) || hasPromoDomain(lowered) || isHashtagStuffing(text) || matches(tokenPrice, text)
     }
 
-    private static let stuffingMinHashtags = 4
+    private static let stuffingMinHashtags = 3
     private static let stuffingMaxOtherLetters = 10
 
     static func isHashtagStuffing(_ text: String) -> Bool {

@@ -22,6 +22,7 @@ final class JobsSpamTests: XCTestCase {
 
     func testHashtagStuffingIsSpam() {
         XCTAssertTrue(NovagramJobSpamGuard.isSpamText("#школьники #vacancy #предзаказ #канада"))
+        XCTAssertTrue(NovagramJobSpamGuard.isSpamText("#ishbor #karnataka #замечательный"))
         XCTAssertFalse(NovagramJobSpamGuard.isSpamText("Sotuvchi kerak. Tel: +998901234567 #ish #vakansiya #toshkent #sotuvchi"))
     }
 
