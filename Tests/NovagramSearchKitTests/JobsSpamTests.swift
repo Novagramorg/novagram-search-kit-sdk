@@ -13,6 +13,16 @@ final class JobsSpamTests: XCTestCase {
         XCTAssertEqual(NovagramJobPostParser.parse(bettingSpam).kind, .unknown, "betting spam is not a job post")
     }
 
+    func testSpamGuardUsesWholeWords() throws {
+        XCTAssertFalse(NovagramJobSpamGuard.isSpamText("Read our guidelines at company.com and send your CV"), "guidelines with a domain is not promo spam")
+        XCTAssertTrue(NovagramJobSpamGuard.isSpamText("Top altcoin picks today at rwcnc.com"), "picks with a domain is promo spam")
+        XCTAssertTrue(NovagramJobSpamGuard.isSpamSource(title: "| PEPE Focused Guide Picks | RWCNC.COM", username: nil), "promo channel title is spam")
+        XCTAssertFalse(NovagramJobSpamGuard.isSpamSource(title: "X Trading vakansiya", username: nil), "trading company job channel is kept")
+        XCTAssertFalse(NovagramJobSpamGuard.isSpamSource(title: "Tokenomics jobs", username: "coinbase_careers"), "coin and token inside longer words are kept")
+        XCTAssertTrue(NovagramJobSpamGuard.isSpamSource(title: "Crypto trading signals", username: nil), "crypto signals channel is spam")
+        XCTAssertTrue(NovagramJobSpamGuard.isSpamSource(title: "Daily coin pump club", username: nil), "coin pump channel is spam")
+    }
+
     func testVacancyMarkers() throws {
         XCTAssertEqual(NovagramJobPostParser.parse("Crypto birjaga backend dasturchi kerak, #vakansiya, oylik 2000$").kind, .vacancy, "crypto company vacancy survives the spam guard")
         XCTAssertEqual(NovagramJobPostParser.parse("Bizning do'konga sotuvchi kerak. Maosh 4 mln so'm, Chilonzor. Tel 90 123 45 67").kind, .vacancy, "uz latin role kerak")

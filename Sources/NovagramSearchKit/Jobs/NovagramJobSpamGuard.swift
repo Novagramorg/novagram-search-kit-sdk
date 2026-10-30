@@ -2,8 +2,10 @@ import Foundation
 
 /// Rejects crypto, betting and promo sources and posts.
 public enum NovagramJobSpamGuard {
-    static let sourceMarkers = ["altcoin", "crypto", "крипто", "coin", "token", "pepe", "pump", "signals", "сигналы", "forex", "binance", "airdrop", "trading", "casino", "казино", "betting", "ставки", "bitcoin", "ethereum", "usdt", "cryptocurrenc", "market data"]
+    static let sourceMarkers = ["altcoin", "crypto", "крипто", "pepe", "signals", "сигналы", "forex", "binance", "airdrop", "casino", "казино", "betting", "ставки", "bitcoin", "ethereum", "usdt", "cryptocurrenc", "market data"]
     static let sourceWords = ["nft", "btc", "eth", "trx", "markets"]
+    static let weakSourceWords = ["coin", "coins", "token", "tokens", "pump", "trading"]
+    private static let weakWordThreshold = 2
     static let textMarkers = ["altcoin", "bitcoin", "ethereum", "usdt", "cryptocurrenc", "market data"]
     static let textWords = ["btc", "eth", "markets"]
     private static let promoWords = ["picks", "guide"]
@@ -11,7 +13,8 @@ public enum NovagramJobSpamGuard {
 
     public static func isSpamSource(title: String, username: String?) -> Bool {
         let text = (title + " " + (username ?? "")).lowercased()
-        return contains(text, markers: sourceMarkers, words: sourceWords) || hasPromoDomain(text)
+        let weakWords = weakSourceWords.filter(wordTokens(text).contains).count
+        return contains(text, markers: sourceMarkers, words: sourceWords) || weakWords >= weakWordThreshold || hasPromoDomain(text)
     }
 
     public static func isSpamText(_ text: String) -> Bool {
@@ -23,12 +26,17 @@ public enum NovagramJobSpamGuard {
         if markers.contains(where: { text.contains($0) }) {
             return true
         }
-        let tokens = Set(text.components(separatedBy: CharacterSet.alphanumerics.inverted).filter { !$0.isEmpty })
+        let tokens = wordTokens(text)
         return words.contains(where: tokens.contains)
     }
 
+    private static func wordTokens(_ text: String) -> Set<String> {
+        return Set(text.components(separatedBy: CharacterSet.alphanumerics.inverted).filter { !$0.isEmpty })
+    }
+
     private static func hasPromoDomain(_ text: String) -> Bool {
-        guard promoWords.contains(where: { text.contains($0) }), let promoDomain = promoDomain else {
+        let tokens = wordTokens(text)
+        guard promoWords.contains(where: tokens.contains), let promoDomain = promoDomain else {
             return false
         }
         return promoDomain.firstMatch(in: text, options: [], range: NSRange(text.startIndex..., in: text)) != nil
