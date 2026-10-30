@@ -21,11 +21,6 @@ public enum NovagramSearchText {
         return String(scalars)
     }
 
-    /// The same as `unifyingApostrophes(_:)`.
-    public static func unifiedApostrophes(_ text: String) -> String {
-        return unifyingApostrophes(text)
-    }
-
     /// The text trimmed, with every run of whitespace and newlines replaced by one space.
     public static func collapsingWhitespace(_ text: String) -> String {
         return text.components(separatedBy: .whitespacesAndNewlines).filter { !$0.isEmpty }.joined(separator: " ")

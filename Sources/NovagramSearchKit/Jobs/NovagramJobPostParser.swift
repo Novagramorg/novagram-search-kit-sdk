@@ -7,7 +7,7 @@ public enum NovagramJobPostParser {
     private static let resumeRequestWeight = 2
 
     public static func parse(_ text: String) -> NovagramJobPostInfo {
-        let unified = NovagramSearchText.unifiedApostrophes(text)
+        let unified = NovagramSearchText.unifyingApostrophes(text)
         let normalized = NovagramSearchText.normalized(text)
         var info = NovagramJobPostInfo(
             title: title(unified),
