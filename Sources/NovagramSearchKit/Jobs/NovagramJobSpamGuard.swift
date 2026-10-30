@@ -19,7 +19,23 @@ public enum NovagramJobSpamGuard {
 
     public static func isSpamText(_ text: String) -> Bool {
         let lowered = text.lowercased()
-        return contains(lowered, markers: textMarkers, words: textWords) || hasPromoDomain(lowered)
+        return contains(lowered, markers: textMarkers, words: textWords) || hasPromoDomain(lowered) || isHashtagStuffing(text)
+    }
+
+    private static let stuffingMinHashtags = 4
+    private static let stuffingMaxOtherLetters = 10
+
+    static func isHashtagStuffing(_ text: String) -> Bool {
+        var hashtags = 0
+        var otherLetters = 0
+        for word in text.split(whereSeparator: { $0.isWhitespace }) {
+            if word.hasPrefix("#") {
+                hashtags += 1
+            } else {
+                otherLetters += word.filter { $0.isLetter }.count
+            }
+        }
+        return hashtags >= stuffingMinHashtags && otherLetters < stuffingMaxOtherLetters
     }
 
     private static func contains(_ text: String, markers: [String], words: [String]) -> Bool {

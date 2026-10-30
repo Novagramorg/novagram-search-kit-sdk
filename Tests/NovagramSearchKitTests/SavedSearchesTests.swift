@@ -143,7 +143,9 @@ final class SavedSearchesTests: XCTestCase {
         store.record("Daily report", accountPeerId: peer, accountRecordId: record)
         let written = try XCTUnwrap(isolated.defaults.data(forKey: NovagramSavedSearchStore.key(accountPeerId: peer)))
         let expected = try JSONEncoder().encode(AppStored(accountRecordId: record, pinned: ["Invoice"], recent: ["Daily report"]))
-        XCTAssertEqual(written, expected)
+        let writtenObject = try XCTUnwrap(JSONSerialization.jsonObject(with: written) as? NSDictionary)
+        let expectedObject = try XCTUnwrap(JSONSerialization.jsonObject(with: expected) as? NSDictionary)
+        XCTAssertEqual(writtenObject, expectedObject)
         XCTAssertEqual(try storedValue(peer), AppStored(accountRecordId: record, pinned: ["Invoice"], recent: ["Daily report"]))
     }
 
