@@ -19,6 +19,27 @@ final class JobsFilterTests: XCTestCase {
         XCTAssertTrue(!NovagramJobFilter().accepts(text: "Junior python", info: vacancyInfo, date: now, now: now, query: NovagramSearchQuery.parse("python -junior")), "filter applies query")
     }
 
+    func testCustomHashtags() throws {
+        var filter = NovagramJobFilter()
+        XCTAssertEqual(filter.hashtags(for: .findJob), NovagramJobPresets.hashtags(for: .findJob), "job hashtags default to presets")
+        XCTAssertFalse(filter.hasCustomHashtags(for: .findJob), "presets are not custom")
+        let legacy = try JSONDecoder().decode(NovagramJobFilter.self, from: Data("{\"mode\":\"findJob\",\"query\":\"ios\"}".utf8))
+        XCTAssertNil(legacy.jobHashtags, "decoding without the key gives nil")
+        XCTAssertNil(legacy.candidateHashtags, "decoding without the key gives nil")
+        filter.setHashtags(["#python", " swift ", "PYTHON", "bad-tag", String(repeating: "a", count: 33)], for: .findJob)
+        XCTAssertEqual(filter.hashtags(for: .findJob), ["python", "swift"], "custom hashtags are cleaned and deduplicated")
+        XCTAssertEqual(filter.hashtags(for: .findCandidates), NovagramJobPresets.hashtags(for: .findCandidates), "the other mode keeps presets")
+        XCTAssertTrue(filter.hasCustomHashtags(for: .findJob), "changed list is custom")
+        filter.setHashtags((0..<20).map { "tag\($0)" }, for: .findCandidates)
+        XCTAssertEqual(filter.hashtags(for: .findCandidates).count, NovagramJobFilter.maxHashtags, "list is capped at 12")
+        filter.setHashtags([], for: .findJob)
+        XCTAssertTrue(filter.hashtags(for: .findJob).isEmpty, "empty custom list stays empty")
+        let decoded = try JSONDecoder().decode(NovagramJobFilter.self, from: JSONEncoder().encode(filter))
+        XCTAssertEqual(decoded, filter, "custom hashtags survive encoding")
+        filter.setHashtags(nil, for: .findJob)
+        XCTAssertEqual(filter.hashtags(for: .findJob), NovagramJobPresets.hashtags(for: .findJob), "nil resets to presets")
+    }
+
     func testPresets() throws {
         XCTAssertTrue(NovagramJobPresets.hashtags(for: .findJob).count <= 8 && NovagramJobPresets.hashtags(for: .findJob).first == "vakansiya", "job hashtags")
         XCTAssertTrue(NovagramJobPresets.hashtags(for: .findCandidates).allSatisfy { !$0.hasPrefix("#") }, "hashtags without #")
