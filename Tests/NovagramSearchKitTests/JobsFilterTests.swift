@@ -49,9 +49,9 @@ final class JobsFilterTests: XCTestCase {
     }
 
     func testFilterLanguagesAndLegacyJSON() throws {
-        XCTAssertEqual(NovagramJobFilter().languages, NovagramSearchLanguage.all, "filter languages default all")
+        XCTAssertEqual(NovagramJobFilter().languages, [], "filter languages default none")
         let legacyFilter = try? JSONDecoder().decode(NovagramJobFilter.self, from: Data(legacyFilterJSON.utf8))
-        XCTAssertEqual(legacyFilter?.languages, NovagramSearchLanguage.all, "stored filter without languages decodes all four")
+        XCTAssertEqual(legacyFilter?.languages, [], "stored filter without languages decodes none")
         XCTAssertEqual(legacyFilter?.mode, .findCandidates, "stored filter keeps other fields")
         let noneFilter = NovagramJobFilter(languages: [])
         let noneData = try? JSONEncoder().encode(noneFilter)

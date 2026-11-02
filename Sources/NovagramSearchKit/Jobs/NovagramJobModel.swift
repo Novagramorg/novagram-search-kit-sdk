@@ -146,7 +146,7 @@ public struct NovagramJobFilter: Equatable, Codable {
     public static let maxHashtags = 12
     public static let maxHashtagLength = 32
 
-    public init(mode: NovagramJobMode = .findJob, query: String = "", cityIds: Set<String> = [], formats: Set<NovagramJobWorkFormat> = [], period: NovagramJobPeriod = .week, onlyWithSalary: Bool = false, languages: Set<NovagramSearchLanguage> = NovagramSearchLanguage.all, jobHashtags: [String]? = nil, candidateHashtags: [String]? = nil) {
+    public init(mode: NovagramJobMode = .findJob, query: String = "", cityIds: Set<String> = [], formats: Set<NovagramJobWorkFormat> = [], period: NovagramJobPeriod = .week, onlyWithSalary: Bool = false, languages: Set<NovagramSearchLanguage> = [], jobHashtags: [String]? = nil, candidateHashtags: [String]? = nil) {
         self.mode = mode
         self.query = query
         self.cityIds = cityIds
@@ -178,7 +178,7 @@ public struct NovagramJobFilter: Equatable, Codable {
         self.formats = try container.decodeIfPresent(Set<NovagramJobWorkFormat>.self, forKey: .formats) ?? []
         self.period = try container.decodeIfPresent(NovagramJobPeriod.self, forKey: .period) ?? .week
         self.onlyWithSalary = try container.decodeIfPresent(Bool.self, forKey: .onlyWithSalary) ?? false
-        self.languages = try container.decodeIfPresent(Set<NovagramSearchLanguage>.self, forKey: .languages) ?? NovagramSearchLanguage.all
+        self.languages = try container.decodeIfPresent(Set<NovagramSearchLanguage>.self, forKey: .languages) ?? []
         self.jobHashtags = try container.decodeIfPresent([String].self, forKey: .jobHashtags).map(NovagramJobFilter.normalizedHashtags)
         self.candidateHashtags = try container.decodeIfPresent([String].self, forKey: .candidateHashtags).map(NovagramJobFilter.normalizedHashtags)
     }

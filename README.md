@@ -28,7 +28,7 @@ Terms match at a word start, in both Uzbek scripts. `parse(_:languages:translati
 | `NovagramJobPostParser` | `parse(_:)` returns a `NovagramJobPostInfo`: kind (vacancy, resume, unknown), title, salary, cities, work formats, employment, experience, contacts. |
 | `NovagramJobPostInfo`, `NovagramJobSalary`, `NovagramJobContact`, `NovagramJobCity` | Parsed post data. |
 | `NovagramJobMode`, `NovagramJobPostKind`, `NovagramJobWorkFormat`, `NovagramJobEmployment`, `NovagramJobCurrency`, `NovagramJobPeriod` | Filter and post enums. |
-| `NovagramJobFilter` | Mode, query, cities, formats, period, salary-only and languages; `accepts(text:info:date:now:query:)` takes a `NovagramSearchQuery`. |
+| `NovagramJobFilter` | Mode, query, cities, formats, period, salary-only and languages (default none: the query is searched as typed); `accepts(text:info:date:now:query:)` takes a `NovagramSearchQuery`. |
 | `NovagramJobSavedSearch`, `NovagramJobAccount` | A saved search with its alert switch; the account it belongs to. |
 | `NovagramJobStore` | Thread-safe saved searches (20), watched channels (30) and last filter per account in `pro_messager`, `novagram_job_search_<peerId>` keys. |
 | `NovagramJobPresets` | Hashtags and keywords per mode, 20 cities, channel discovery queries. |
