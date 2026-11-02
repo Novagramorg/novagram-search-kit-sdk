@@ -15,6 +15,7 @@ Foundation only: Postbox, TelegramCore, SwiftSignalKit and UI stay in the apps a
 | `Settings/`      | `novagram_search_features` (default on), `novagram_search_translate` (default off), `novagram_search_translate_langs` (translated-section languages, legacy fallback to `auto_translate_lang`, at most 3 server translations), key and deep-link slug constants. |
 | `Jobs/`          | Job search: post parser, salary and contact parsers, presets, filter model, per-account store, channel relevance and spam guard. |
 | `Archive/`       | Search in edit history and deleted messages: the archived record, a search index over any records, paged search with privacy exclusion, an optional file store per account and the macOS legacy edit-history import. |
+| `SuperSearch/`   | Super search: sources, filter, query plan, deduplicated results and the optional spam filter. |
 
 ## Query language
 
@@ -57,6 +58,29 @@ debug build, then a search takes under 50 ms.
 let index = store.index(accountRecordId: accountRecordId)
 let request = NovagramArchiveSearchRequest(rawQuery: "uchrashuv", kinds: .deleted)
 let page = NovagramArchiveSearch.search(request, in: index, isChatExcluded: { hiddenChats.contains($0) })
+```
+
+## Super search
+
+Super search shows everything the server returns for a query. Nothing is cut by default: no spam filter, no job check
+and no local word matching. Every filter is off until the user turns it on. Hidden chats are excluded by the app.
+
+| Type | Purpose |
+| ---- | ------- |
+| `NovagramSuperSearchSource` | `myChats`, `publicChats`, `publicChannelPosts`, `hashtagPosts`, `globalPosts` (Premium quota, only on request) and `archive`. |
+| `NovagramSuperSearchFilter` | Sources (default all but `globalPosts`), period, chat kinds, media kinds, `hideSpam` and languages, all off by default. `isDefault`, `activeFilterCount` for a badge. JSON: missing keys give defaults, unknown values are skipped. |
+| `NovagramSuperSearchPlan` | `make(raw:filter:translations:)`: server text queries (Uzbek script variants and translations, at most 5), the public chat query, hashtags (explicit tags, a joined tag of 2-3 words, words of 3+ letters, at most 5) and the sources that can run. `translationsNeeded(raw:filter:)` lists what to translate first. |
+| `NovagramSuperSearchHit`, `NovagramSuperSearchHitId` | One message result and its identity (peer, namespace, id). |
+| `NovagramSuperSearchResults` | Deduplicates hits by id (the first source keeps the hit, `sources(of:)` lists all), `all` newest first, `visible(filter:now:)` applies only the filters that are on, `count(for:)`, `removeAll(from:)` to re-run one source. |
+| `NovagramSuperSearchSpam` | The optional spam check, the same rules as `NovagramJobSpamGuard`. |
+
+```swift
+let filter = NovagramSuperSearchFilter()
+let needed = NovagramSuperSearchPlan.translationsNeeded(raw: text, filter: filter)
+let plan = NovagramSuperSearchPlan.make(raw: text, filter: filter, translations: translated)
+var results = NovagramSuperSearchResults()
+results.add(hitsFromMyChats)
+let rows = results.visible(filter: filter, now: now)
 ```
 
 ## macOS integration
